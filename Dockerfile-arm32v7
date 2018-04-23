@@ -1,5 +1,5 @@
 FROM arm32v7/openjdk:10-jre
-
+COPY qemu-arm-static /usr/bin/
 COPY target/hello-*.jar /app.jar
 
 ENTRYPOINT [ "java", "-jar", "app.jar" ]
