@@ -16,6 +16,7 @@ BUILD_ARCH=x86_64
 docker run --privileged \
 	-v $(pwd):/src \
 	-v /var/run/docker.sock:/var/run/docker.sock \
+    -w /src \
 	maven:3-jdk-10 \
 	mvn package
 
