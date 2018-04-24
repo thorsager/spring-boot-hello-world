@@ -5,3 +5,8 @@ docker run --privileged \
   -v /var/run/docker.sock:/var/run/docker.sock \
   maven:3-jdk-10 \
   mvn package 
+
+echo "=> Register QEMU"
+docker run --rm --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  multiarch/qemu-user-static:register --reset
