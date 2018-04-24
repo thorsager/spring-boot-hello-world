@@ -13,7 +13,11 @@ BUILD_ARCH=x86_64
 
 
 ## Build .jar
-mvn package
+docker run --privileged \
+	-v $(pwd):/src \
+	-v /var/run/docker.sock:/var/run/docker.sock \
+	maven:3-jdk-10 \
+	mvn package
 
 ## Create local QEMU storage-folder
 #[[ ! -d ${QEMU_LOCAL} ]] && mkdir -p ${QEMU_LOCAL}
