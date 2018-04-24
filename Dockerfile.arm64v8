@@ -1,0 +1,5 @@
+FROM arm64v8/openjdk:10-jre
+COPY target/qemu/qemu-aarch64-static /usr/bin/
+COPY target/hello-*.jar /app.jar
+
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
