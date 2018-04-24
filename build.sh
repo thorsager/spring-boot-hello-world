@@ -2,7 +2,7 @@
 set -e
 
 IMAGE=thorsager/sbhw
-TAG=latest
+TAG=SNAPSHOT
 
 BUILD=target
 QEMU_LOCAL="${BUILD}/qemu"
@@ -16,32 +16,32 @@ BUILD_ARCH=x86_64
 mvn package
 
 ## Create local QEMU storage-folder
-[[ ! -d ${QEMU_LOCAL} ]] && mkdir -p ${QEMU_LOCAL}
+#[[ ! -d ${QEMU_LOCAL} ]] && mkdir -p ${QEMU_LOCAL}
 
 ## Download QEMU binaries if not found locally
-for target_arch in ${QEMU_ARCS}; do
-    qemu=qemu-"${target_arch}-static"
-    if [[ ! -e ${QEMU_LOCAL}/${qemu} ]]; then
-        archive_file="${BUILD_ARCH}_${qemu}.tar.gz"
-        wget ${QEMU_DL_BASE_URL}/${archive_file} -O ${QEMU_LOCAL}/${archive_file}
-        tar xvf ${QEMU_LOCAL}/${archive_file} --directory ${QEMU_LOCAL}/
-        rm ${QEMU_LOCAL}/${archive_file}
-    fi
-done
+#for target_arch in ${QEMU_ARCS}; do
+#    qemu=qemu-"${target_arch}-static"
+#    if [[ ! -e ${QEMU_LOCAL}/${qemu} ]]; then
+#        archive_file="${BUILD_ARCH}_${qemu}.tar.gz"
+#        wget ${QEMU_DL_BASE_URL}/${archive_file} -O ${QEMU_LOCAL}/${archive_file}
+#        tar xvf ${QEMU_LOCAL}/${archive_file} --directory ${QEMU_LOCAL}/
+#        rm ${QEMU_LOCAL}/${archive_file}
+#    fi
+#done
 
 ## Register qemu-container
 docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 ## Build and intel/amd version
-docker build -t ${IMAGE}:amd64-${TAG} -f Dockerfile .
+docker build -t ${IMAGE}:amd64-${TAG} -f amd64/Dockerfile .
 docker push ${IMAGE}:amd64-${TAG}
 
 ## Build and push arm32v7 version
-docker build -t ${IMAGE}:arm32v7-${TAG} -f Dockerfile.arm32v7 .
+docker build -t ${IMAGE}:arm32v7-${TAG} -f arm32v7/Dockerfile .
 docker push ${IMAGE}:arm32v7-${TAG}
 
 ## Build and arm64v8 version
-docker build -t ${IMAGE}:arm64v8-${TAG} -f Dockerfile.arm64v8 .
+docker build -t ${IMAGE}:arm64v8-${TAG} -f arm64v8/Dockerfile .
 docker push ${IMAGE}:arm64v8-${TAG}
 
 ## Create docker manifest-list
@@ -53,7 +53,7 @@ docker manifest create --amend ${IMAGE}:${TAG} \
 ## Annotate images
 docker manifest annotate ${IMAGE}:${TAG} ${IMAGE}:amd64-${TAG} --arch amd64 --os linux
 docker manifest annotate ${IMAGE}:${TAG} ${IMAGE}:arm32v7-${TAG} --arch arm --os linux --variant v7
-docker manifest annotate ${IMAGE}:${TAG} ${IMAGE}:arm64v8-${TAG} --arch aarch64 --os linux --variant v8
+docker manifest annotate ${IMAGE}:${TAG} ${IMAGE}:arm64v8-${TAG} --arch arm64 --os linux --variant v8
 
 ## Push manifest
 docker manifest push ${IMAGE}:${TAG}
